@@ -33,6 +33,7 @@ class ServerpodClientRequestDelegateImpl
     Uri url, {
     required String body,
     String? authenticationValue,
+    Map<String, String>? customHeaders,
   }) async {
     try {
       var response = await _httpClient
@@ -41,6 +42,7 @@ class ServerpodClientRequestDelegateImpl
             body: body,
             headers: {
               'authorization': ?authenticationValue,
+              ...?customHeaders,
             },
           )
           .timeout(connectionTimeout);
