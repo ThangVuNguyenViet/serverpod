@@ -40,6 +40,7 @@ class ServerpodClientRequestDelegateImpl
     Uri url, {
     required String body,
     String? authenticationValue,
+    Map<String, String>? customHeaders,
   }) async {
     try {
       var request = await _httpClient.postUrl(url);
@@ -54,6 +55,11 @@ class ServerpodClientRequestDelegateImpl
           HttpHeaders.authorizationHeader,
           authenticationValue,
         );
+      }
+      if (customHeaders != null) {
+        for (final entry in customHeaders.entries) {
+          request.headers.add(entry.key, entry.value);
+        }
       }
       request.write(body);
 

@@ -62,6 +62,7 @@ abstract class ServerpodClientRequestDelegate {
     Uri url, {
     required String body,
     String? authenticationValue,
+    Map<String, String>? customHeaders,
   });
 
   /// Closes the connection to the server.
@@ -215,6 +216,10 @@ abstract class ServerpodClientShared extends EndpointCaller {
   /// authenticated requests. If not provided, all requests will be
   /// unauthenticated.
   ClientAuthKeyProvider? authKeyProvider;
+
+  /// Custom headers to include with every request to the server.
+  /// These headers are added in addition to the authorization header.
+  Map<String, String>? customHeaders;
 
   /// Creates a new ServerpodClientShared.
   ServerpodClientShared(
@@ -562,6 +567,7 @@ abstract class ServerpodClientShared extends EndpointCaller {
         url,
         body: body,
         authenticationValue: authenticationValue,
+        customHeaders: customHeaders,
       );
 
       T result;
