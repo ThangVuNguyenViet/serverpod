@@ -77,6 +77,11 @@ abstract class Session implements DatabaseSession {
   /// useful for keeping track of the state in a [StreamingEndpoint].
   dynamic userObject;
 
+  /// Custom context data attached by pre-endpoint handlers.
+  /// Use this to pass validated data (e.g. API key context) from
+  /// [Server.preEndpointHandlers] to endpoint methods.
+  Map<String, Object>? requestContext;
+
   /// Access to the database.
   Database? _db;
 

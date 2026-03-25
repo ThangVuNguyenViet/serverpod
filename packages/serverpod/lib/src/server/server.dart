@@ -66,6 +66,24 @@ class Server implements RouterInjectable {
   /// [AuthenticationHandler] responsible for authenticating users.
   AuthenticationHandler get authenticationHandler => _authenticationHandler;
 
+  /// Pre-endpoint handlers that run after session creation but before the
+  /// endpoint method is called. Similar to Fastify's `preHandler` hooks.
+  ///
+  /// Each handler receives the [Session] and the raw [Request]. Return a
+  /// [Response] to short-circuit (e.g. 401), or `null` to continue the chain.
+  ///
+  /// Example:
+  /// ```dart
+  /// pod.server.preEndpointHandlers.add((session, request) async {
+  ///   final apiKey = request.headers['x-api-key']?.first;
+  ///   if (apiKey == null) return Response.unauthorized();
+  ///   session.requestContext = {'apiKey': validatedContext};
+  ///   return null; // continue
+  /// });
+  /// ```
+  final List<FutureOr<Response?> Function(Session session, Request request)>
+      preEndpointHandlers = [];
+
   /// Caches used by the server.
   final Caches caches;
 
@@ -502,6 +520,15 @@ class Server implements RouterInjectable {
           context: contextFromRequest(this, request, OperationType.method),
         );
         return Response.internalServerError();
+      }
+
+      // Run pre-endpoint handlers (API key validation, logging, etc.)
+      for (final handler in preEndpointHandlers) {
+        final earlyResponse = await handler(session, request);
+        if (earlyResponse != null) {
+          await session.close();
+          return earlyResponse;
+        }
       }
 
       try {
